@@ -2,7 +2,7 @@ import TensorflowUtils
 import os
 #-----------------------------------------Check if pretrain vgg16 models and data are availale----------------------------------------------------
 def CheckVGG16(model_path): # Check if pretrained vgg16 model avialable and if not try to download it
-    TensorflowUtils.maybe_download_and_extract(model_path.split('/')[0], "ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy")  # If not exist try to download pretrained vgg16 net for network initiation
+    TensorflowUtils.maybe_download_and_extract("/content/drive/My Drive/Skeleton Extraction/", "ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy")  # If not exist try to download pretrained vgg16 net for network initiation
     if not os.path.isfile(model_path):
        print("Error: Cant find pretrained vgg16 model for network initiation. Please download model from:")
        print("ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy")
