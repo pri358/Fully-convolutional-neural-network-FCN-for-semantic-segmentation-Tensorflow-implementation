@@ -18,14 +18,14 @@ import os
 import CheckVGG16Model
 import scipy.misc as misc
 #...........................................Input and output folders.................................................
-Train_Image_Dir="Data_Zoo/Materials_In_Vessels/Train_Images/" # Images and labels for training
-Train_Label_Dir="Data_Zoo/Materials_In_Vessels/LiquidSolidLabels/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
+Train_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Train_Images/" # Images and labels for training
+Train_Label_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
 UseValidationSet=False# do you want to use validation set in training
-Valid_Image_Dir="Data_Zoo/Materials_In_Vessels/Test_Images_All/"# Validation images that will be used to evaluate training
-Valid_Labels_Dir="Data_Zoo/Materials_In_Vessels/LiquidSolidLabels/"#  (the  Labels are in same folder as the training set)
-logs_dir= "logs/"# "path to logs directory where trained model and information will be stored"
+Valid_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Validation images that will be used to evaluate training
+Valid_Labels_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"#  (the  Labels are in same folder as the training set)
+logs_dir= "/content/drive/My Drive/Skeleton Extraction/fcn_logs/"# "path to logs directory where trained model and information will be stored"
 if not os.path.exists(logs_dir): os.makedirs(logs_dir)
-model_path="Model_Zoo/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
+model_path="/content/drive/My Drive/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 learning_rate=1e-5 #Learning rate for Adam Optimizer
 CheckVGG16Model.CheckVGG16(model_path)# Check if pretrained vgg16 model avialable and if not try to download it
 #-----------------------------Other Paramters------------------------------------------------------------------------
