@@ -16,11 +16,11 @@ import os
 import Data_Reader
 import OverrlayLabelOnImage as Overlay
 import CheckVGG16Model
-logs_dir= "logs/"# "path to logs directory where trained model and information will be stored"
-Image_Dir="Data_Zoo/Materials_In_Vessels/Test_Images_All/"# Test image folder
+logs_dir= "/content/drive/My Drive/Skeleton Extraction/fcn_logs/"# "path to logs directory where trained model and information will be stored"
+Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Test image folder
 w=0.6# weight of overlay on image
-Pred_Dir="Output_Prediction/" # Library where the output prediction will be written
-model_path="Model_Zoo/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
+Pred_Dir="/content/drive/My Drive/Skeleton Extraction/fcn_output/" # Library where the output prediction will be written
+model_path="/content/drive/My Drive/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 NameEnd="" # Add this string to the ending of the file name optional
 NUM_CLASSES = 2 # Number of classes
 #-------------------------------------------------------------------------------------------------------------------------
