@@ -2,6 +2,9 @@ import numpy as np
 import os
 import scipy.misc as misc
 import random
+import imageio
+import PIL
+from PIL import Image
 #------------------------Class for reading training and  validation data---------------------------------------------------------------------
 class Data_Reader:
 
@@ -66,11 +69,11 @@ class Data_Reader:
 
         for f in range(batch_size):
 #.............Read image and labels from files.........................................................
-           Img = misc.imread(self.Image_Dir + "/" + self.SFiles[self.itr])
+           Img = imageio.imread(self.Image_Dir + "/" + self.SFiles[self.itr])
            Img=Img[:,:,0:3]
            LabelName=self.SFiles[self.itr][0:-4]+".png"# Assume Label name is same as image only with png ending
            if self.ReadLabels:
-              Label= misc.imread(self.Label_Dir + "/" + LabelName)
+              Label= imageio.imread(self.Label_Dir + "/" + LabelName)
            self.itr+=1
 #............Set Batch image size according to first image in the batch...................................................
            if f==0:
@@ -89,8 +92,9 @@ class Data_Reader:
 
 
 #..........Resize and strecth image and labels....................................................................
-           Img = misc.imresize(Img, [Sy,Sx], interp='bilinear')
-           if self.ReadLabels: Label= misc.imresize(Label, [Sy, Sx], interp='nearest')
+          #  Img = misc.imresize(Img, [Sy,Sx], interp='bilinear')
+           Img = np.array(Image.fromarray(Img).resize([Sy,Sx], Image.BILINEAR))
+           if self.ReadLabels: Label= np.array(Image.fromarray(Label).resize([Sy,Sx], Image.NEAREST))
 
 #-------------------------------Crop Image.......................................................................
            MinOccupancy=501
@@ -153,11 +157,11 @@ class Data_Reader:
 
         for f in range(batch_size):
 ##.............Read image and labels from files.........................................................
-           Img = misc.imread(self.Image_Dir + "/" + self.OrderedFiles[self.itr])
+           Img = imageio.imread(self.Image_Dir + "/" + self.OrderedFiles[self.itr])
            Img=Img[:,:,0:3]
            LabelName=self.OrderedFiles[self.itr][0:-4]+".png"# Assume label name is same as image only with png ending
            if self.ReadLabels:
-              Label= misc.imread(self.Label_Dir + "/" + LabelName)
+              Label= imageio.imread(self.Label_Dir + "/" + LabelName)
            self.itr+=1
 #............Set Batch size according to first image...................................................
            if f==0:
@@ -166,8 +170,8 @@ class Data_Reader:
                 if self.ReadLabels: Labels= np.zeros([batch_size,Sy,Sx,1], dtype=np.int)
 
 #..........Resize image and labels....................................................................
-           Img = misc.imresize(Img, [Sy, Sx], interp='bilinear')
-           if self.ReadLabels: Label = misc.imresize(Label, [Sy, Sx], interp='nearest')
+           Img = np.array(Image.fromarray(Img).resize([Sy,Sx], Image.BILINEAR))
+           if self.ReadLabels: Label = np.array(Image.fromarray(Label).resize([Sy,Sx], Image.NEAREST))
 #...................Load image and label to batch..................................................................
            Images[f] = Img
            if self.ReadLabels:
