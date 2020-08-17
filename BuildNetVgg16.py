@@ -19,9 +19,13 @@ class BUILD_NET_VGG16:
         #     vgg16_npy_path = path
         #
         #     print(path)
+        np_load_old = np.load
 
+        # modify the default parameters of np.load
+        np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
         self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item() #Load weights of trained VGG16 for encoder
         print("npy file loaded")
+        np.load = np_load_old
 ########################################Build Net#####################################################################################################################
     def build(self, rgb,NUM_CLASSES,keep_prob):  #Build the fully convolutional neural network (FCN) and load weight for decoder based on trained VGG16 network
         """
