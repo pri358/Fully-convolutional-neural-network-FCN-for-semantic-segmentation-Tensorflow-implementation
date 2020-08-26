@@ -24,22 +24,34 @@ class Data_Reader:
             self.ReadLabels=True
         self.Label_Dir = GTLabelDir # Folder with ground truth pixels was annotated (optional for training only)
         self.OrderedFiles=[]
+        self.LabelFiles = []
         # Read list of all files
-        self.OrderedFiles += [each for each in os.listdir(self.Image_Dir) if each.endswith('.PNG') or each.endswith('.JPG') or each.endswith('.TIF') or each.endswith('.GIF') or each.endswith('.png') or each.endswith('.jpg') or each.endswith('.tif') or each.endswith('.gif') ] # Get list of training images
+        training_classes = os.listdir(self.Image_Dir)
+        for training_class in training_classes:
+          images = os.listdir(self.Image_Dir + training_class)
+          for image in images:
+            self.OrderedFiles.append(training_class + "/" + image) # Get list of training images
+          masks = os.listdir(self.Label_Dir + training_class)
+          for mask in masks:
+            self.LabelFiles.append(training_class + "/" + mask)
         self.BatchSize=BatchSize #Number of images used in single training operation
         self.NumFiles=len(self.OrderedFiles)
-        self.OrderedFiles.sort() # Sort files by names
+        # self.OrderedFiles.sort() # Sort files by names
         self.SuffleBatch() # suffle file list
 ####################################### Suffle list of files in  group that fit the batch size this is important since we want the batch to contain images of the same size##########################################################################################
     def SuffleBatch(self):
         self.SFiles = []
+        self.SLabels = []
         Sf=np.array(range(np.int32(np.ceil(self.NumFiles/self.BatchSize)+1)))*self.BatchSize
-        random.shuffle(Sf)
+        Lb = np.array(range(np.int32(np.ceil(self.NumFiles/self.BatchSize)+1)))*self.BatchSize
+        # random.shuffle(Sf)
         self.SFiles=[]
+        self.SLabels = []
         for i in range(len(Sf)):
             for k in range(self.BatchSize):
                   if Sf[i]+k<self.NumFiles:
                       self.SFiles.append(self.OrderedFiles[Sf[i]+k])
+                      self.SLabels.append(self.LabelFiles[Lb[i] + k])
 ###########################Read and augment next batch of images and labels#####################################################################################
     def ReadAndAugmentNextBatch(self):
         if self.itr>=self.NumFiles: # End of an epoch
@@ -68,15 +80,17 @@ class Data_Reader:
 #-----------Augument Images and labeles-------------------------------------------------------------------
 
         for f in range(batch_size):
+
 #.............Read image and labels from files.........................................................
-           Img = imageio.imread(self.Image_Dir + "/" + self.SFiles[self.itr])
-           Img=Img[:,:,0:3]
-           LabelName=self.SFiles[self.itr][0:-4]+".png"# Assume Label name is same as image only with png ending
-           if self.ReadLabels:
-              Label= imageio.imread(self.Label_Dir + "/" + LabelName)
-           self.itr+=1
+          Img = imageio.imread(self.Image_Dir + self.SFiles[self.itr])
+          Img=Img[:,:,0:3]
+          # LabelName=self.SFiles[self.itr][0:-4]+".png"# Assume Label name is same as image only with png ending
+          if self.ReadLabels:
+              Label= imageio.imread(self.Label_Dir + self.SLabels[self.itr])
+              Label = Label/255.0
+          self.itr+=1
 #............Set Batch image size according to first image in the batch...................................................
-           if f==0:
+          if f==0:
                 Sy, Sx,d = Img.shape
                 Sy,Sx
                 Sy*=YF
@@ -93,50 +107,50 @@ class Data_Reader:
 
 #..........Resize and strecth image and labels....................................................................
           #  Img = misc.imresize(Img, [Sy,Sx], interp='bilinear')
-           Img = np.array(Image.fromarray(Img).resize([Sy,Sx], Image.BILINEAR))
-           if self.ReadLabels: Label= np.array(Image.fromarray(Label).resize([Sy,Sx], Image.NEAREST))
+          Img = np.array(Image.fromarray(Img).resize([Sx,Sy], Image.BILINEAR))
+          if self.ReadLabels: Label= np.array(Image.fromarray(Label).resize([Sx,Sy], Image.NEAREST))
 
 #-------------------------------Crop Image.......................................................................
-           MinOccupancy=501
-           if not (Cry==Sy and Crx==Sx):
-               for u in range(501):
-                   MinOccupancy-=1
-                   Xi=np.int32(np.floor(np.random.rand()*(Sx-Crx)))
-                   Yi=np.int32(np.floor(np.random.rand()*(Sy-Cry)))
-                   if np.sum(Label[Yi:Yi+Cry,Xi:Xi+Crx]>0)>MinOccupancy:
+          MinOccupancy=501
+          if not (Cry==Sy and Crx==Sx):
+              for u in range(501):
+                  MinOccupancy-=1
+                  Xi=np.int32(np.floor(np.random.rand()*(Sx-Crx)))
+                  Yi=np.int32(np.floor(np.random.rand()*(Sy-Cry)))
+                  if np.sum(Label[Yi:Yi+Cry,Xi:Xi+Crx]>0)>MinOccupancy:
                       Img=Img[Yi:Yi+Cry,Xi:Xi+Crx,:]
                       if self.ReadLabels: Label=Label[Yi:Yi+Cry,Xi:Xi+Crx]
                       break
 #------------------------Mirror Image-------------------------------# --------------------------------------------
-           if random.random()<0.5: # Agument the image by mirror image
-               Img=np.fliplr(Img)
-               if self.ReadLabels:
-                   Label=np.fliplr(Label)
+          if random.random()<0.5: # Agument the image by mirror image
+              Img=np.fliplr(Img)
+              if self.ReadLabels:
+                  Label=np.fliplr(Label)
 
 #-----------------------Agument color of Image-----------------------------------------------------------------------
-           Img = np.float32(Img)
+          Img = np.float32(Img)
 
 
-           if np.random.rand() < 0.8:  # Play with shade
-               Img *= 0.4 + np.random.rand() * 0.6
-           if np.random.rand() < 0.4:  # Turn to grey
-               Img[:, :, 2] = Img[:, :, 1]=Img[:, :, 0] = Img[:,:,0]=Img.mean(axis=2)
+          if np.random.rand() < 0.8:  # Play with shade
+              Img *= 0.4 + np.random.rand() * 0.6
+          if np.random.rand() < 0.4:  # Turn to grey
+              Img[:, :, 2] = Img[:, :, 1]=Img[:, :, 0] = Img[:,:,0]=Img.mean(axis=2)
 
-           if np.random.rand() < 0.0:  # Play with color
+          if np.random.rand() < 0.0:  # Play with color
               if np.random.rand() < 0.6:
-                 for i in range(3):
-                     Img[:, :, i] *= 0.1 + np.random.rand()
+                for i in range(3):
+                    Img[:, :, i] *= 0.1 + np.random.rand()
 
 
 
               if np.random.rand() < 0.2:  # Add Noise
-                   Img *=np.ones(Img.shape)*0.95 + np.random.rand(Img.shape[0],Img.shape[1],Img.shape[2])*0.1
-           Img[Img>255]=255
-           Img[Img<0]=0
+                  Img *=np.ones(Img.shape)*0.95 + np.random.rand(Img.shape[0],Img.shape[1],Img.shape[2])*0.1
+          Img[Img>255]=255
+          Img[Img<0]=0
 #----------------------Add images and labels to to the batch----------------------------------------------------------
-           Images[f]=Img
-           if self.ReadLabels:
-                  Labels[f,:,:,0]=Label
+          Images[f]=Img
+          if self.ReadLabels:
+                Labels[f,:,:,0]=Label
 
 #.......................Return aumented images and labels...........................................................
         if self.ReadLabels:
@@ -157,11 +171,12 @@ class Data_Reader:
 
         for f in range(batch_size):
 ##.............Read image and labels from files.........................................................
-           Img = imageio.imread(self.Image_Dir + "/" + self.OrderedFiles[self.itr])
+           Img = imageio.imread(self.Image_Dir + self.OrderedFiles[self.itr])
            Img=Img[:,:,0:3]
-           LabelName=self.OrderedFiles[self.itr][0:-4]+".png"# Assume label name is same as image only with png ending
+          #  LabelName=self.OrderedFiles[self.itr][0:-4]+".png"# Assume label name is same as image only with png ending
            if self.ReadLabels:
-              Label= imageio.imread(self.Label_Dir + "/" + LabelName)
+              Label= imageio.imread(self.Label_Dir + self.LabelFiles[self.itr])
+              Label = Label/255.0
            self.itr+=1
 #............Set Batch size according to first image...................................................
            if f==0:
