@@ -111,7 +111,7 @@ class BUILD_NET_VGG16:
 
         self.Prob = utils.conv2d_transpose_strided(self.fuse_2, W_t3, b_t3, output_shape=[shape[0], shape[1], shape[2], NUM_CLASSES], stride=8)
      #--------------------Transform  probability vectors to label maps-----------------------------------------------------------------
-        self.Pred = tf.argmax(self.Prob, dimension=3, name="Pred")
+#         self.Pred = tf.argmax(self.Prob, dimension=3, name="Pred")
 
         print("FCN model built")
 #####################################################################################################################################################
