@@ -18,14 +18,14 @@ import os
 import CheckVGG16Model
 import scipy.misc as misc
 #...........................................Input and output folders.................................................
-Train_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Train_Images/" # Images and labels for training
-Train_Label_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
+Train_Image_Dir="/content/drive/My Drive/IP - 7th sem/CO-SKEL_v1.1/images/" # Images and labels for training
+Train_Label_Dir="/content/drive/My Drive/IP - 7th sem/CO-SKEL_v1.1/GT_transforms/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
 UseValidationSet=False# do you want to use validation set in training
-Valid_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Validation images that will be used to evaluate training
-Valid_Labels_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"#  (the  Labels are in same folder as the training set)
-logs_dir= "/content/drive/My Drive/Skeleton Extraction/fcn_logs/"# "path to logs directory where trained model and information will be stored"
+# Valid_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Validation images that will be used to evaluate training
+# Valid_Labels_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"#  (the  Labels are in same folder as the training set)
+logs_dir= "/content/drive/My Drive/IP - 7th sem/Distance_transform/logs/"# "path to logs directory where trained model and information will be stored"
 if not os.path.exists(logs_dir): os.makedirs(logs_dir)
-model_path="/content/drive/My Drive/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
+model_path="/content/drive/My Drive/IP - 7th sem/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 learning_rate=1e-5 #Learning rate for Adam Optimizer
 CheckVGG16Model.CheckVGG16(model_path)# Check if pretrained vgg16 model avialable and if not try to download it
 #-----------------------------Other Paramters------------------------------------------------------------------------
@@ -34,7 +34,7 @@ ValidLossTxtFile=logs_dir+"ValidationLoss.txt"# Where validation losses will be 
 Batch_Size=2 # Number of files per training iteration
 Weight_Loss_Rate=5e-4# Weight for the weight decay loss function
 MAX_ITERATION = int(100010) # Max  number of training iteration
-NUM_CLASSES = 4#Number of class for fine grain +number of class for solid liquid+Number of class for empty none empty +Number of class for vessel background
+NUM_CLASSES = 2#Number of class for fine grain +number of class for solid liquid+Number of class for empty none empty +Number of class for vessel background
 ######################################Solver for model   training#####################################################################################################################
 def train(loss_val, var_list):
     optimizer = tf.train.AdamOptimizer(learning_rate)
