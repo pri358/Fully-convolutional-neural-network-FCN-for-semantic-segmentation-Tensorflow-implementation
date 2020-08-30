@@ -16,11 +16,12 @@ import os
 import Data_Reader
 import OverrlayLabelOnImage as Overlay
 import CheckVGG16Model
-logs_dir= "/content/drive/My Drive/Skeleton Extraction/fcn_logs/"# "path to logs directory where trained model and information will be stored"
-Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Test image folder
+import imageio
+logs_dir= "/content/drive/My Drive/IP - 7th sem/Distance_transform/logs/"# "path to logs directory where trained model and information will be stored"
+Image_Dir="/content/drive/My Drive/IP - 7th sem/Distance_transform/Test_images/"# Test image folder
 w=0.6# weight of overlay on image
-Pred_Dir="/content/drive/My Drive/Skeleton Extraction/fcn_output/" # Library where the output prediction will be written
-model_path="/content/drive/My Drive/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
+Pred_Dir="/content/drive/My Drive/IP - 7th sem/Distance_transform/output/" # Library where the output prediction will be written
+model_path="/content/drive/My Drive/IP - 7th sem/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 NameEnd="" # Add this string to the ending of the file name optional
 NUM_CLASSES = 2 # Number of classes
 #-------------------------------------------------------------------------------------------------------------------------
@@ -75,8 +76,8 @@ def main(argv=None):
         # Predict annotation using net
         LabelPred = sess.run(Net.Pred, feed_dict={image: Images, keep_prob: 1.0})
              #------------------------Save predicted labels overlay on images---------------------------------------------------------------------------------------------
-        misc.imsave(Pred_Dir + "/OverLay/"+ FileName+NameEnd  , Overlay.OverLayLabelOnImage(Images[0],LabelPred[0], w)) #Overlay label on image
-        misc.imsave(Pred_Dir + "/Label/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.uint8))
+        # imageio.imwrite(Pred_Dir + "/OverLay/"+ FileName+NameEnd  , Overlay.OverLayLabelOnImage(Images[0],LabelPred[0], w)) #Overlay label on image
+        imageio.imwrite(Pred_Dir + "/Label/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.uint8))
         ##################################################################################################################################################
 main()#Run script
 print("Finished")
