@@ -23,7 +23,7 @@ w=0.6# weight of overlay on image
 Pred_Dir="/content/drive/My Drive/IP - 7th sem/Distance_transform/output/" # Library where the output prediction will be written
 model_path="/content/drive/My Drive/IP - 7th sem/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 NameEnd="" # Add this string to the ending of the file name optional
-NUM_CLASSES = 2 # Number of classes
+NUM_CLASSES = 1 # Number of classes
 #-------------------------------------------------------------------------------------------------------------------------
 CheckVGG16Model.CheckVGG16(model_path)# Check if pretrained vgg16 model avialable and if not try to download it
 
