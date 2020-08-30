@@ -3,6 +3,7 @@ import os
 import scipy.misc as misc
 import random
 import imageio
+import sklearn
 import PIL
 from PIL import Image
 #------------------------Class for reading training and  validation data---------------------------------------------------------------------
@@ -26,14 +27,21 @@ class Data_Reader:
         self.OrderedFiles=[]
         self.LabelFiles = []
         # Read list of all files
-        training_classes = os.listdir(self.Image_Dir)
-        for training_class in training_classes:
-          images = os.listdir(self.Image_Dir + training_class)
+        if(self.ReadLabels):
+          training_classes = os.listdir(Aself.Image_Dir)
+          for training_class in training_classes:
+            images = os.listdir(self.Image_Dir + training_class)
+            for image in images:
+              self.OrderedFiles.append(training_class + "/" + image) # Get list of training images
+            masks = os.listdir(self.Label_Dir + training_class)
+            for mask in masks:
+              self.LabelFiles.append(training_class + "/" + mask)
+          self.OrderedFiles, self.LabelFiles = sklearn.utils.shuffle(self.OrderedFiles, self.LabelFiles) 
+        else:
+          images = os.listdir(self.Image_Dir)
           for image in images:
-            self.OrderedFiles.append(training_class + "/" + image) # Get list of training images
-          masks = os.listdir(self.Label_Dir + training_class)
-          for mask in masks:
-            self.LabelFiles.append(training_class + "/" + mask)
+            self.OrderedFiles.append(image)
+          self.OrderedFiles = sklearn.utils.shuffle(self.OrderedFiles)
         self.BatchSize=BatchSize #Number of images used in single training operation
         self.NumFiles=len(self.OrderedFiles)
         # self.OrderedFiles.sort() # Sort files by names
@@ -51,7 +59,8 @@ class Data_Reader:
             for k in range(self.BatchSize):
                   if Sf[i]+k<self.NumFiles:
                       self.SFiles.append(self.OrderedFiles[Sf[i]+k])
-                      self.SLabels.append(self.LabelFiles[Lb[i] + k])
+                      if(self.ReadLabels):
+                        self.SLabels.append(self.LabelFiles[Lb[i] + k])
 ###########################Read and augment next batch of images and labels#####################################################################################
     def ReadAndAugmentNextBatch(self):
         if self.itr>=self.NumFiles: # End of an epoch
@@ -185,8 +194,8 @@ class Data_Reader:
                 if self.ReadLabels: Labels= np.zeros([batch_size,Sy,Sx,1], dtype=np.int)
 
 #..........Resize image and labels....................................................................
-           Img = np.array(Image.fromarray(Img).resize([Sy,Sx], Image.BILINEAR))
-           if self.ReadLabels: Label = np.array(Image.fromarray(Label).resize([Sy,Sx], Image.NEAREST))
+           Img = np.array(Image.fromarray(Img).resize([Sx,Sy], Image.BILINEAR))
+           if self.ReadLabels: Label = np.array(Image.fromarray(Label).resize([Sx,Sy], Image.NEAREST))
 #...................Load image and label to batch..................................................................
            Images[f] = Img
            if self.ReadLabels:
