@@ -34,7 +34,7 @@ ValidLossTxtFile=logs_dir+"ValidationLoss.txt"# Where validation losses will be 
 Batch_Size=2 # Number of files per training iteration
 Weight_Loss_Rate=5e-4# Weight for the weight decay loss function
 MAX_ITERATION = int(100010) # Max  number of training iteration
-NUM_CLASSES = 2#Number of class for fine grain +number of class for solid liquid+Number of class for empty none empty +Number of class for vessel background
+NUM_CLASSES = 1#Number of class for fine grain +number of class for solid liquid+Number of class for empty none empty +Number of class for vessel background
 ######################################Solver for model   training#####################################################################################################################
 def train(loss_val, var_list):
     optimizer = tf.train.AdamOptimizer(learning_rate)
@@ -53,7 +53,8 @@ def main(argv=None):
     Net =  BuildNetVgg16.BUILD_NET_VGG16(vgg16_npy_path=model_path) #Create class for the network
     Net.build(image, NUM_CLASSES,keep_prob)# Create the net and load intial weights
 #......................................Get loss functions for neural net work  one loss function for each set of label....................................................................................................
-    Loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.squeeze(GTLabel, squeeze_dims=[3]), logits=Net.Prob,name="Loss")))  # Define loss function for training
+    # Loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.squeeze(GTLabel, squeeze_dims=[3]), logits=Net.Prob,name="Loss")))  # Define loss function for training
+    Loss = tf.reduce_mean(tf.keras.losses.MSE(GTLabel, Net.Prob))
    #....................................Create solver for the net............................................................................................
     trainable_var = tf.trainable_variables() # Collect all trainable variables for the net
     train_op = train(Loss, trainable_var) #Create Train Operation for the net
