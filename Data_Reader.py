@@ -28,7 +28,7 @@ class Data_Reader:
         self.LabelFiles = []
         # Read list of all files
         if(self.ReadLabels):
-          training_classes = os.listdir(Aself.Image_Dir)
+          training_classes = os.listdir(self.Image_Dir)
           for training_class in training_classes:
             images = os.listdir(self.Image_Dir + training_class)
             for image in images:
@@ -138,8 +138,6 @@ class Data_Reader:
 
 #-----------------------Agument color of Image-----------------------------------------------------------------------
           Img = np.float32(Img)
-
-
           if np.random.rand() < 0.8:  # Play with shade
               Img *= 0.4 + np.random.rand() * 0.6
           if np.random.rand() < 0.4:  # Turn to grey
@@ -149,14 +147,12 @@ class Data_Reader:
               if np.random.rand() < 0.6:
                 for i in range(3):
                     Img[:, :, i] *= 0.1 + np.random.rand()
-
-
-
               if np.random.rand() < 0.2:  # Add Noise
                   Img *=np.ones(Img.shape)*0.95 + np.random.rand(Img.shape[0],Img.shape[1],Img.shape[2])*0.1
           Img[Img>255]=255
           Img[Img<0]=0
 #----------------------Add images and labels to to the batch----------------------------------------------------------
+          Img = Img/255.0
           Images[f]=Img
           if self.ReadLabels:
                 Labels[f,:,:,0]=Label
