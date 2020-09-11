@@ -6,12 +6,13 @@ import imageio
 import sklearn
 import PIL
 from PIL import Image
+import cv2
 #------------------------Class for reading training and  validation data---------------------------------------------------------------------
 class Data_Reader:
 
 
 ################################Initiate folders were files are and list of train images############################################################################
-    def __init__(self, ImageDir,GTLabelDir="", BatchSize=1,Suffle=True):
+    def __init__(self, train_images, ImageDir,GTLabelDir="", BatchSize=1,Suffle=True):
         #ImageDir directory were images are
         #GTLabelDir Folder wehere ground truth Labels map are save in png format (same name as corresponnding image in images folder)
         self.NumFiles = 0 # Number of files in reader
@@ -19,6 +20,7 @@ class Data_Reader:
         self.itr = 0 #Iteration
         #Image directory
         self.Image_Dir=ImageDir # Image Dir
+        self.train = train_images
         if GTLabelDir=="":# If no label dir use
             self.ReadLabels=False
         else:
@@ -32,15 +34,17 @@ class Data_Reader:
           for training_class in training_classes:
             images = os.listdir(self.Image_Dir + training_class)
             for image in images:
-              self.OrderedFiles.append(training_class + "/" + image) # Get list of training images
-            masks = os.listdir(self.Label_Dir + training_class)
-            for mask in masks:
-              self.LabelFiles.append(training_class + "/" + mask)
+              if(image in self.train):
+                self.OrderedFiles.append(training_class + "/" + image) # Get list of training images
+                self.LabelFiles.append(image[:-4] + ".png")
           self.OrderedFiles, self.LabelFiles = sklearn.utils.shuffle(self.OrderedFiles, self.LabelFiles) 
         else:
-          images = os.listdir(self.Image_Dir)
-          for image in images:
-            self.OrderedFiles.append(image)
+          training_classes = os.listdir(self.Image_Dir)
+          for training_class in training_classes:
+            images = os.listdir(self.Image_Dir + training_class)
+            for image in images:
+              if(image in self.train):
+                self.OrderedFiles.append(training_class + "/" + image)
           self.OrderedFiles = sklearn.utils.shuffle(self.OrderedFiles)
         self.BatchSize=BatchSize #Number of images used in single training operation
         self.NumFiles=len(self.OrderedFiles)
@@ -91,7 +95,9 @@ class Data_Reader:
         for f in range(batch_size):
 
 #.............Read image and labels from files.........................................................
-          Img = imageio.imread(self.Image_Dir + self.SFiles[self.itr])
+          Img = np.array(imageio.imread(self.Image_Dir + self.SFiles[self.itr]))
+          if(Img.ndim < 3):
+            Img = cv2.cvtColor(Img,cv2.COLOR_GRAY2RGB)
           Img=Img[:,:,0:3]
           # LabelName=self.SFiles[self.itr][0:-4]+".png"# Assume Label name is same as image only with png ending
           if self.ReadLabels:
@@ -177,6 +183,8 @@ class Data_Reader:
         for f in range(batch_size):
 ##.............Read image and labels from files.........................................................
            Img = imageio.imread(self.Image_Dir + self.OrderedFiles[self.itr])
+           if(Img.ndim<3):
+             Img = cv2.cvtColor(Img,cv2.COLOR_GRAY2RGB)
            Img=Img[:,:,0:3]
           #  LabelName=self.OrderedFiles[self.itr][0:-4]+".png"# Assume label name is same as image only with png ending
            if self.ReadLabels:
