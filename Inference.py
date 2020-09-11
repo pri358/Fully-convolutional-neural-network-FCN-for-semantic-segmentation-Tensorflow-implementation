@@ -17,10 +17,10 @@ import Data_Reader
 import OverrlayLabelOnImage as Overlay
 import CheckVGG16Model
 import imageio
-logs_dir= "/content/drive/My Drive/IP - 7th sem/Distance_transform/logs/"# "path to logs directory where trained model and information will be stored"
-Image_Dir="/content/drive/My Drive/IP - 7th sem/Distance_transform/Test_images/"# Test image folder
+logs_dir= "/content/drive/My Drive/IP - 7th sem/CUB_200_2011/logs/"# "path to logs directory where trained model and information will be stored"
+Image_Dir="/content/drive/My Drive/IP - 7th sem/CUB_200_2011/images/"# Test image folder
 w=0.6# weight of overlay on image
-Pred_Dir="/content/drive/My Drive/IP - 7th sem/Distance_transform/output/" # Library where the output prediction will be written
+Pred_Dir="/content/drive/My Drive/IP - 7th sem/CUB_200_2011/output1/" # Library where the output prediction will be written
 model_path="/content/drive/My Drive/IP - 7th sem/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 NameEnd="" # Add this string to the ending of the file name optional
 NUM_CLASSES = 1 # Number of classes
@@ -28,7 +28,7 @@ NUM_CLASSES = 1 # Number of classes
 CheckVGG16Model.CheckVGG16(model_path)# Check if pretrained vgg16 model avialable and if not try to download it
 
 ################################################################################################################################################################################
-def main(argv=None):
+def fun_main(test_images):
       # .........................Placeholders for input image and labels........................................................................
     keep_prob = tf.placeholder(tf.float32, name="keep_probabilty")  # Dropout probability
     image = tf.placeholder(tf.float32, shape=[None, None, None, 3], name="input_image")  # Input image batch first dimension image number second dimension width third dimension height 4 dimension RGB
@@ -37,7 +37,7 @@ def main(argv=None):
     Net = BuildNetVgg16.BUILD_NET_VGG16(vgg16_npy_path=model_path)  # Create class instance for the net
     Net.build(image, NUM_CLASSES, keep_prob)  # Build net and load intial weights (weights before training)
     # -------------------------Data reader for validation/testing images-----------------------------------------------------------------------------------------------------------------------------
-    ValidReader = Data_Reader.Data_Reader(Image_Dir,  BatchSize=1)
+    ValidReader = Data_Reader.Data_Reader(test_images, Image_Dir,  BatchSize=1)
     #-------------------------Load Trained model if you dont have trained model see: Train.py-----------------------------------------------------------------------------------------------------------------------------
 
     sess = tf.Session() #Start Tensorflow session
@@ -57,8 +57,9 @@ def main(argv=None):
 #--------------------Create output directories for predicted label, one folder for each granulairy of label prediciton---------------------------------------------------------------------------------------------------------------------------------------------
 
     if not os.path.exists(Pred_Dir): os.makedirs(Pred_Dir)
-    if not os.path.exists(Pred_Dir+"/OverLay"): os.makedirs(Pred_Dir+"/OverLay")
-    if not os.path.exists(Pred_Dir + "/Label"): os.makedirs(Pred_Dir + "/Label")
+    # if not os.path.exists(Pred_Dir+"/OverLay"): os.makedirs(Pred_Dir+"/OverLay")
+    if not os.path.exists(Pred_Dir + "Label"): os.makedirs(Pred_Dir + "/Label")
+    if not os.path.exists(Pred_Dir + "Label_double"): os.makedirs(Pred_Dir + "/Label_double")
 
     
     print("Running Predictions:")
@@ -70,14 +71,15 @@ def main(argv=None):
         print(str(fim * 100.0 / ValidReader.NumFiles) + "%")
         fim += 1
         # ..................................Load image.......................................................................................
-        FileName=ValidReader.OrderedFiles[ValidReader.itr] #Get input image name
+        FileName=ValidReader.OrderedFiles[ValidReader.itr].split("/")[1] #Get input image name
         Images = ValidReader.ReadNextBatchClean()  # load testing image
 
         # Predict annotation using net
         LabelPred = sess.run(Net.Pred, feed_dict={image: Images, keep_prob: 1.0})
              #------------------------Save predicted labels overlay on images---------------------------------------------------------------------------------------------
         # imageio.imwrite(Pred_Dir + "/OverLay/"+ FileName+NameEnd  , Overlay.OverLayLabelOnImage(Images[0],LabelPred[0], w)) #Overlay label on image
-        imageio.imwrite(Pred_Dir + "/Label/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.uint8))
+        imageio.imwrite(Pred_Dir + "Label/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.uint8))
+        imageio.imwrite(Pred_Dir + "Label_double/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.double))
         ##################################################################################################################################################
-main()#Run script
+# main()#Run script
 print("Finished")
