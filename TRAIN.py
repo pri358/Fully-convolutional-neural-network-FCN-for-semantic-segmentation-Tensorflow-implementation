@@ -18,12 +18,12 @@ import os
 import CheckVGG16Model
 import scipy.misc as misc
 #...........................................Input and output folders.................................................
-Train_Image_Dir="/content/drive/My Drive/IP - 7th sem/CO-SKEL_v1.1/images/" # Images and labels for training
-Train_Label_Dir="/content/drive/My Drive/IP - 7th sem/CO-SKEL_v1.1/GT_transforms/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
+Train_Image_Dir="/content/drive/My Drive/IP - 7th sem/CUB_200_2011/images/" # Images and labels for training
+Train_Label_Dir="/content/drive/My Drive/IP - 7th sem/CUB_200_2011/distance_transforms/"# Annotetion in png format for train images and validation images (assume the name of the images and annotation images are the same (but annotation is always png format))
 UseValidationSet=False# do you want to use validation set in training
 # Valid_Image_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/Test_Images_All/"# Validation images that will be used to evaluate training
 # Valid_Labels_Dir="/content/drive/My Drive/Skeleton Extraction/Materials_In_Vessels/LiquidSolidLabels/"#  (the  Labels are in same folder as the training set)
-logs_dir= "/content/drive/My Drive/IP - 7th sem/Distance_transform/logs/"# "path to logs directory where trained model and information will be stored"
+logs_dir= "/content/drive/My Drive/IP - 7th sem/CUB_200_2011/logs/"# "path to logs directory where trained model and information will be stored"
 if not os.path.exists(logs_dir): os.makedirs(logs_dir)
 model_path="/content/drive/My Drive/IP - 7th sem/Skeleton Extraction/vgg16.npy"# "Path to pretrained vgg16 model for encoder"
 learning_rate=1e-5 #Learning rate for Adam Optimizer
@@ -43,7 +43,7 @@ def train(loss_val, var_list):
 
 ################################################################################################################################################################################
 ################################################################################################################################################################################
-def main(argv=None):
+def fun_main(train_images):
     tf.reset_default_graph()
     keep_prob= tf.placeholder(tf.float32, name="keep_probabilty") #Dropout probability
 #.........................Placeholders for input image and labels...........................................................................................
@@ -59,7 +59,7 @@ def main(argv=None):
     trainable_var = tf.trainable_variables() # Collect all trainable variables for the net
     train_op = train(Loss, trainable_var) #Create Train Operation for the net
 #----------------------------------------Create reader for data set--------------------------------------------------------------------------------------------------------------
-    TrainReader = Data_Reader.Data_Reader(Train_Image_Dir,  GTLabelDir=Train_Label_Dir,BatchSize=Batch_Size) #Reader for training data
+    TrainReader = Data_Reader.Data_Reader(train_images, Train_Image_Dir,  GTLabelDir=Train_Label_Dir,BatchSize=Batch_Size) #Reader for training data
     if UseValidationSet:
         ValidReader = Data_Reader.Data_Reader(Valid_Image_Dir,  GTLabelDir=Valid_Labels_Dir,BatchSize=Batch_Size) # Reader for validation data
     sess = tf.Session() #Start Tensorflow session
@@ -119,5 +119,5 @@ def main(argv=None):
 
 
 ##################################################################################################################################################
-main()#Run script
+# main()#Run script
 print("Finished")
