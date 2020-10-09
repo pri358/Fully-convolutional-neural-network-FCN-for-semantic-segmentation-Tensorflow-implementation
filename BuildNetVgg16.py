@@ -111,7 +111,7 @@ class BUILD_NET_VGG16:
 
         self.Prob = utils.conv2d_transpose_strided(self.fuse_2, W_t3, b_t3, output_shape=[shape[0], shape[1], shape[2], NUM_CLASSES], stride=8)
      #--------------------Transform  probability vectors to label maps-----------------------------------------------------------------
-        self.Pred = self.Prob
+        self.Pred = tf.nn.sigmoid(self.Prob)
 
         print("FCN model built")
 #####################################################################################################################################################
@@ -160,12 +160,12 @@ class BUILD_NET_VGG16:
             return fc
 ######################################Get VGG filter ############################################################################################################
     def get_conv_filter(self, name):
-        var=tf.Variable(self.data_dict[name][0], name="filter_" + name)
+        var=tf.Variable(self.data_dict[name][0], name="filter_" + name, trainable = False)
         self.SumWeights+=tf.nn.l2_loss(var)
         return var
 ##################################################################################################################################################
     def get_bias(self, name):
-        return tf.Variable(self.data_dict[name][1], name="biases_"+name)
+        return tf.Variable(self.data_dict[name][1], name="biases_"+name, trainable = False)
 #############################################################################################################################################
     def get_fc_weight(self, name):
         return tf.Variable(self.data_dict[name][0], name="weights_"+name)
