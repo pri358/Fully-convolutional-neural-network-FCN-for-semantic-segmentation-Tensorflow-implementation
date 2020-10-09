@@ -54,7 +54,7 @@ def fun_main(train_images):
     Net.build(image, NUM_CLASSES,keep_prob)# Create the net and load intial weights
 #......................................Get loss functions for neural net work  one loss function for each set of label....................................................................................................
     # Loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.squeeze(GTLabel, squeeze_dims=[3]), logits=Net.Prob,name="Loss")))  # Define loss function for training
-    Loss = tf.reduce_mean(tf.keras.losses.MSE(GTLabel, Net.Prob))
+    Loss = tf.reduce_mean(tf.keras.losses.MAE(GTLabel, Net.Pred))
    #....................................Create solver for the net............................................................................................
     trainable_var = tf.trainable_variables() # Collect all trainable variables for the net
     train_op = train(Loss, trainable_var) #Create Train Operation for the net
