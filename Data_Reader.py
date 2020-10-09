@@ -97,7 +97,7 @@ class Data_Reader:
 #.............Read image and labels from files.........................................................
           Img = np.array(imageio.imread(self.Image_Dir + self.SFiles[self.itr]))
           if(Img.ndim < 3):
-            Img = cv2.cvtColor(Img,cv2.COLOR_GRAY2RGB)
+            continue
           Img=Img[:,:,0:3]
           # LabelName=self.SFiles[self.itr][0:-4]+".png"# Assume Label name is same as image only with png ending
           if self.ReadLabels:
