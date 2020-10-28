@@ -16,7 +16,7 @@ import os
 import Data_Reader
 import OverrlayLabelOnImage as Overlay
 import CheckVGG16Model
-import imageio
+import cv2
 logs_dir= "/content/drive/My Drive/IP - 7th sem/CUB_200_2011/logs/"# "path to logs directory where trained model and information will be stored"
 Image_Dir="/content/drive/My Drive/IP - 7th sem/CUB_200_2011/images/"# Test image folder
 w=0.6# weight of overlay on image
@@ -59,7 +59,7 @@ def fun_main(test_images):
     if not os.path.exists(Pred_Dir): os.makedirs(Pred_Dir)
     # if not os.path.exists(Pred_Dir+"/OverLay"): os.makedirs(Pred_Dir+"/OverLay")
     if not os.path.exists(Pred_Dir + "Label"): os.makedirs(Pred_Dir + "/Label")
-    if not os.path.exists(Pred_Dir + "Label_double"): os.makedirs(Pred_Dir + "/Label_double")
+    # if not os.path.exists(Pred_Dir + "Label_double"): os.makedirs(Pred_Dir + "/Label_double")
 
     
     print("Running Predictions:")
@@ -78,8 +78,8 @@ def fun_main(test_images):
         LabelPred = sess.run(Net.Pred, feed_dict={image: Images, keep_prob: 1.0})
              #------------------------Save predicted labels overlay on images---------------------------------------------------------------------------------------------
         # imageio.imwrite(Pred_Dir + "/OverLay/"+ FileName+NameEnd  , Overlay.OverLayLabelOnImage(Images[0],LabelPred[0], w)) #Overlay label on image
-        imageio.imwrite(Pred_Dir + "Label/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.uint8))
-        imageio.imwrite(Pred_Dir + "Label_double/" + FileName[:-4] + ".png" + NameEnd, LabelPred[0].astype(np.double))
+        cv2.imwrite(Pred_Dir + "Label/" + FileName[:-4] + "_raw.png" + NameEnd, LabelPred[0])
+        cv2.imwrite(Pred_Dir + "Label/" + FileName[:-4] + ".png" + NameEnd, (LabelPred[0]*255.0).astype(np.uint8))
         ##################################################################################################################################################
 # main()#Run script
 print("Finished")
