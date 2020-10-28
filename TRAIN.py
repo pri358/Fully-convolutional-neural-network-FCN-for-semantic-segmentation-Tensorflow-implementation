@@ -82,7 +82,7 @@ def fun_main(train_images):
        f.close()
 #..............Start Training loop: Main Training....................................................................
     for itr in range(MAX_ITERATION):
-        Images,  GTLabels =TrainReader.ReadAndAugmentNextBatch() # Load  augmeted images and ground true labels for training
+        Images,  GTLabels =TrainReader.ReadNextBatchClean() # Load  augmeted images and ground true labels for training
         feed_dict = {image: Images,GTLabel:GTLabels, keep_prob: 0.5}
         sess.run(train_op, feed_dict=feed_dict) # Train one cycle
 # --------------Save trained model------------------------------------------------------------------------------------------------------------------------------------------
